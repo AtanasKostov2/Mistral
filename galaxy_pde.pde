@@ -1,46 +1,98 @@
 boolean mouse_test = false;
 Star s;
 void setup() {
-    size(1600, 900);
+    size(1920, 1080);
     background(0);
     mouseClicked();
 }
 void draw() {
-    keyPressed();
+}
+void random() {
+    background(0);
+    Galaxy c5 = new Galaxy(random(1, 20), random(20, 80), false, false, true);
+
+    Eye e = new Eye();
+    e.step/=2;
+    e.draw_shape();
+
+    Galaxy g1 = new Galaxy(0.03, random(4000, 5400), true, false, false);
+    if (random(1)>0.5) {
+        Eye e2 = new Eye();
+        e2.step/=2;
+        e2.draw_shape();
+        print("Second eye\n");
+    }
+    Galaxy g2 = new Galaxy(0.04, random(250, 450), true, false, false);
+    Galaxy g3 = new Galaxy(0.05, random(250, 400), true, false, false);
+
+
+    if (random(1)>0.7) {
+        Eye e3 = new Eye();
+        e3.step/=2;
+        e3.draw_shape();
+        print("Third eye\n");
+    }
+    if (random(1) >0.95) {
+        for (int i =0; i<5; i++) {
+            Eye ex = new Eye();
+            ex.step/=2;
+            ex.draw_shape();
+        }
+        print("X5\n");
+    }
+    Galaxy g4 = new Galaxy(0.07, random(200, 400), true, false, false);
 }
 void mouseClicked()
 {
+    random();
+    /*
     background(0);
-    Eye e = new Eye();
-    e.draw_shape();
-
-    Galaxy g1 = new Galaxy(0.03, random(3000, 4400), true, false);
-    Galaxy g2 = new Galaxy(0.04, random(200, 400), true, false);
-    Galaxy g3 = new Galaxy(0.05, random(150, 300), true, false);
-    Galaxy g4 = new Galaxy(0.07, random(100, 300), true, false);
-    Galaxy c5 = new Galaxy(0.09, random(1, 10), true, false);
+     Galaxy c5 = new Galaxy(5, random(50, 100), false, false, true);
+     
+     Eye e = new Eye();
+     e.step/=2;
+     e.draw_shape();
+     
+     Galaxy g1 = new Galaxy(0.03, random(4000, 5400), true, false, false);
+     Eye e2 = new Eye();
+     e2.step/=2;
+     e2.draw_shape();
+     Galaxy g2 = new Galaxy(0.04, random(250, 450), true, false, false);
+     Galaxy g3 = new Galaxy(0.05, random(250, 400), true, false, false);
+     
+     
+     Eye e3 = new Eye();
+     e2.step/=2;
+     e3.draw_shape();
+     
+     Galaxy g4 = new Galaxy(0.07, random(200, 400), true, false, false);
+     */
 }
 
 class Eye {
     float x, y, r;
-    int log_base;
+    float log_base;
     color star_color;
-    float rot;
+    float scale_l=280;
+    float scale_h=330;
+    float rot = -28;
+    float end = 2.1;
+    float step= 0.01;
+
 
     Eye() {
         this.x = width/2;
         this.y = height/2;
         this.r = -0.3;
-        this.log_base = 30;
-        this.rot = 45;
+        this.log_base = random(9, 100);
     }
     float func_outer(float x_loc) {
         //log(y^2)+x^2=a -> outer shape
-        return pow(10, (this.r-pow(x_loc, 2))/2);
+        return pow(this.log_base, (this.r-pow(x_loc, 2))/2);
     }
     float func_inner(float x_loc) {
-        //log(y^2)+x^2=a -> inner shape
-        return pow(10, this.r-pow(x_loc, 2));
+        //log(y)+x^2=a -> inner shape
+        return pow(this.log_base, this.r-pow(x_loc, 2));
     }
 
     float func_circle(float x_loc) {
@@ -54,58 +106,52 @@ class Eye {
     public void draw_shape() {
         pushMatrix();
         translate(x, y);
-        rotate(radians(random(-27, -29)));
-        scale(random(250,310));
+        rotate(radians(this.rot));
+        scale(random(this.scale_l, this.scale_h));
 
         create_shape3();
         create_shape();
         Core c = new Core();
         c.x = 0;
         c.y = 0;
-        c.core_r = random(10,62);
+        c.core_r = random(10, 62);
         c.core_rim = random(c.core_r*1.5, c.core_r*2);
         pushMatrix();
         scale(0.01);
         c.draw_core();
         popMatrix();
         popMatrix();
-        print("e");
     }
     public void create_shape3() {
-        float end = 2.2;
-        float step= 0.01;
-        int stroke_alpha = 0;
         int base_col = 100;
         float drift = 0.05;
         //outer eyelid
         beginShape();
         strokeWeight(0.1);
-        
+
         color outer_col = get_color();
-        fill(outer_col,20);//color(51, 22, 26));
-        stroke(outer_col,40);//color(38, 14, 17), 150);
-        for (float i = -end; i< end; i+=step) {
+        fill(outer_col, 20);//color(51, 22, 26));
+        stroke(outer_col, 40);//color(38, 14, 17), 150);
+        for (float i = -this.end; i< this.end; i+=this.step) {
             vertex(i, func_outer(i));
         }
-        for (float i = end; i> -end; i-=step) {
+        for (float i = this.end; i> -this.end; i-=this.step) {
             vertex(i, -func_outer(i));
         }
-
-
         endShape(CLOSE);
 
-        fill(get_color(),50);//color(74, 25, 32), 200);
+        fill(get_color(), 50);//color(74, 25, 32), 200);
         stroke(get_color(), 40);//color(68, 27, 33), 50);
         beginShape();
-        for (float i = -end; i< end; i+=step) {
+        for (float i = -this.end; i<this.end; i+=this.step) {
             vertex(i, func_inner(i));
         }
-        for (float i = end; i> -end; i-=step) {
+        for (float i = this.end; i> -this.end; i-=this.step) {
             vertex(i, -func_inner(i));
         }
         endShape(CLOSE);
-        
-        fill(get_color(),70);//color(97, 25, 34), 250);
+
+        fill(get_color(), 70);//color(97, 25, 34), 250);
         strokeWeight(random(0.05, 0.15));
         stroke(get_color(), 20);//color(166, 39, 56), 50);
 
@@ -119,25 +165,22 @@ class Eye {
         endShape(CLOSE);
         /*
         pushMatrix();
-        scale(0.99);
-        beginShape();
-        for (float i = -0.31; i< 0.31; i+=0.01) {
-            vertex(i, func_circle(i));
-        }
-        for (float i = 0.31; i> -0.31; i-=0.01) {
-            vertex(i, -func_circle(i));
-        }
-        endShape(CLOSE);
-        popMatrix();
-        strokeWeight(0.07);
-        */
+         scale(0.99);
+         beginShape();
+         for (float i = -0.31; i< 0.31; i+=0.01) {
+         vertex(i, func_circle(i));
+         }
+         for (float i = 0.31; i> -0.31; i-=0.01) {
+         vertex(i, -func_circle(i));
+         }
+         endShape(CLOSE);
+         popMatrix();
+         strokeWeight(0.07);
+         */
     }
     public void create_shape2() {
-        float end = 1.8;
         float step= 0.01;
-        int stroke_alpha = 0;
         int base_col = 100;
-        float drift = 0.05;
         for (float i = -end; i< end; i+=step) {
             fill(color(0, 0, base_col));
             stroke(color(0, 0, base_col));
@@ -164,12 +207,10 @@ class Eye {
     }
 
     public void create_shape() {
-        float end = 2.2;
-        float step= 0.01;
         int stroke_alpha = 40;
         int base_col = 100;
         float drift = 0;
-        for (float i = -end; i< end; i+=step) {
+        for (float i = -this.end; i< this.end; i+=this.step) {
             fill(color(0, 0, base_col), stroke_alpha);
             stroke(color(0, 0, base_col), stroke_alpha);
             circle(i+get_drift(drift), func_outer(i)+get_drift(drift), 0.01);
@@ -188,12 +229,12 @@ class Eye {
         }
         /*
         for (float i = -0.31; i< 0.31; i+=0.05) {
-            fill(color(base_col, 0, 0), stroke_alpha);
-            stroke(color(base_col, 0, 0), stroke_alpha);
-            circle(i+get_drift(drift), func_circle(i) + get_drift(drift), 0.01);
-            circle(i+get_drift(drift), -func_circle(i) + get_drift(drift), 0.01);
-        }
-        */
+         fill(color(base_col, 0, 0), stroke_alpha);
+         stroke(color(base_col, 0, 0), stroke_alpha);
+         circle(i+get_drift(drift), func_circle(i) + get_drift(drift), 0.01);
+         circle(i+get_drift(drift), -func_circle(i) + get_drift(drift), 0.01);
+         }
+         */
     }
     float get_drift(float drift) {
         return random(-drift, drift);
@@ -204,14 +245,26 @@ class Galaxy {
     float scale;
     boolean use_star = true;
     boolean use_core = false;
-    Galaxy(float scale, float n, boolean use_star, boolean use_core) {
+    boolean use_eye = false;
+    Galaxy(float scale, float n, boolean use_star, boolean use_core, boolean use_eye) {
         this.n = (int)n;
         this.scale = scale;
         this.use_star = use_star;
         this.use_core = use_core;
+        this.use_eye = use_eye;
         draw_shape();
     }
-
+    void draw_eye() {
+        Eye e = new Eye();
+        e.scale_l=1;
+        e.scale_h=5*this.scale;
+        e.x = random(width);
+        e.y = random(height);
+        e.step = 0.3;
+        e.end = 1.6;
+        e.rot = random(360);
+        e.draw_shape();
+    }
     void draw_core() {
         pushMatrix();
         Core c = new Core();
@@ -227,6 +280,7 @@ class Galaxy {
 
         Star s = new Star();
         s.r = random(3, 4);
+        s.step=3;
         translate(s.x, s.y);
         scale(random(this.scale));
         s.draw_shape();
@@ -241,6 +295,9 @@ class Galaxy {
             if (this.use_core == true) {
                 draw_core();
             }
+            if (this.use_eye == true) {
+                draw_eye();
+            }
         }
     }
 }
@@ -251,6 +308,8 @@ class Star {
     int log_base;
     color star_color;
     float rot;
+    int end = 700;
+    float step= 1;
 
     Star() {
         this.x = get_x();
@@ -277,17 +336,15 @@ class Star {
         popMatrix();
     }
     public void create_shape() {
-        int end = 700;
-        float step= 1;
         beginShape();
-        for (float i = -end; i< end; i+=step) {
+        for (float i = -this.end; i< this.end; i+=this.step) {
             if (i<-0.5) {
                 vertex(i, +func(i));
             } else if (i>0.5) {
                 vertex(i, -func(i));
             }
         }
-        for (float i = end; i>-end; i-=step) {
+        for (float i = this.end; i>-this.end; i-=this.step) {
             if (i<-0.5) {
                 vertex(i, -func(i));
             } else if (i>0.5) {
@@ -312,7 +369,7 @@ class Core {
         this.core_r = random(10, 150);
         this.core_color = get_color();
         this.core_rim = this.core_r+(this.core_r/150)*this.core_r+random(core_r/5+20);
-        info();
+        //info();
     }
 
     public void color_core() {
@@ -372,7 +429,6 @@ void keyReleased() {
     }
     if (key == '2') {
         print("Saving frame", "\n");
-        saveFrame();
+        saveFrame("line-#######.png");
     }
-    
 }
